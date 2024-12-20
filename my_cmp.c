@@ -1,51 +1,56 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
 
+int main(int argc, char *argv[] ){
 
-int main(){
+ssize_t c1,c2;
+char buffer1,buffer2;
+int posicio = 0; //Declararem variables per contar posició i linia
+int linia = 1;
 
-int c1,c2;
-int posicio = 0;
-
-const char *pathname = "Escritura.txt";
-const char *pathname2 = "Escritura.txt";
-
-
-int f1 = open(pathname, "r", 740 );
-if (f1 == NULL){
+int f1 = open( argv[1], O_RDONLY, 744 ); //Abre archivo 1
+if (f1 == -1){ //Si la lectura de l'arxiu 1 falla, dona un missatge d'error
 	perror("Error obrint l'arxiu 1");
-	return -1;
+	exit(-1);
 }
 
 
-int f2 = open(pathname2, "r", 740 );
-if (f2 == NULL){
+int f2 = open( argv[2], O_RDONLY, 744 ); //Abre archivo 2
+if (f2 == -1){ //Missatge d'error per l'arxiu 2
         perror("Error obrint l'arxiu 2");
-        return -1;
+	exit(-1);
 }
 
 
 
-while(c1 !EOF || c2!EOF || iguals){ //EOF detecta quan l'arxiu ha arribat al final
+while(1){
 
-	c1 = fgetc(f1); //La funció fgetc llegeix el seguent caràcter de l'arxiu
-	c2 = fgetc(f2);
+	c1 = read( f1, &buffer1, 1);
+	c2 = read( f2, &buffer2, 1);
 
 
 	posicio ++;
 	
-	if (c1 == EOF && c2 == EOX){
-		printf("Son iguals");
-		
-	}
+	
+	if (c1 > 0 && c2 > 0) { //Si un arxiu arriba al final, retornarà 0 
+		if (buffer1 == '\n' && buffer2 == '\n'){ //Si hi ha salt de línia
+			linia++; //Incrementarà en 1 la línia
+		}
 
 
-	if ( c1 == EOF  )
-
-
+		if (buffer1 != buffer2) { //Si mentre no han arribar al final, tenen una lletra diferent
+                printf("Son diferents a la posició %d, a la linea %d\n", posicio,linia); //Ho imprimirà i s'en sortirà
+                break;
+            }
+        } else if (c1 == 0 && c2 == 0) { //Si els dos han arribat al final a l'hora sense tenir diferencies
+            printf("Són iguals\n"); //Els arxius són iguals
+            break;
+        } else if (c1 == 0 || c2 == 0) { //Si s'ha acabat de llegir i l'altre no:
+            printf("Tenen diferent longitud, són diferents\n"); //Seràn diferents per longitud
+            break;
+        }
 
 }
-
-
 }
